@@ -1,0 +1,135 @@
+<!-- ===== StreamElements — Pill défilante subathon ===== -->
+<!-- Colle tout ce fichier dans l'onglet HTML d'un Custom Widget. -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+
+<div class="pill">
+  <div class="fenetre">
+  <div class="track">
+
+    <!-- Copie 1 -->
+    <div class="serie">
+      <span class="item"><b class="label">Sub T1</b> <b class="value">+5 min</b></span>
+      <span class="sep">◆</span>
+      <span class="item"><b class="label">Sub Prime</b> <b class="value">+5 min</b></span>
+      <span class="sep">◆</span>
+      <span class="item"><b class="label">Sub T2</b> <b class="value">+10 min</b></span>
+      <span class="sep">◆</span>
+      <span class="item"><b class="label">Sub T3</b> <b class="value">+15 min</b></span>
+      <span class="sep">◆</span>
+      <span class="item"><b class="label">1 Bits</b> <b class="value">+1 sec</b></span>
+      <span class="sep">◆</span>
+      <span class="item"><b class="label">Follow</b> <b class="value">+10 sec</b></span>
+      <span class="sep">◆</span>
+    </div>
+
+    <!-- Copie 2 : identique, elle assure la boucle sans coupure -->
+    <div class="serie" aria-hidden="true">
+      <span class="item"><b class="label">Sub T1</b> <b class="value">+5 min</b></span>
+      <span class="sep">◆</span>
+      <span class="item"><b class="label">Sub Prime</b> <b class="value">+5 min</b></span>
+      <span class="sep">◆</span>
+      <span class="item"><b class="label">Sub T2</b> <b class="value">+10 min</b></span>
+      <span class="sep">◆</span>
+      <span class="item"><b class="label">Sub T3</b> <b class="value">+15 min</b></span>
+      <span class="sep">◆</span>
+      <span class="item"><b class="label">1 Bits</b> <b class="value">+1 sec</b></span>
+      <span class="sep">◆</span>
+      <span class="item"><b class="label">Follow</b> <b class="value">+10 sec</b></span>
+      <span class="sep">◆</span>
+    </div>
+
+  </div>
+  </div>
+</div>
+
+<style>
+/* ---- Réglages rapides : change ces valeurs et c'est tout ---- */
+:root {
+  --largeur:    420px;     /* longueur de la pill */
+  --taille:     22px;      /* taille du texte (la hauteur suit) */
+  --vitesse:    18s;       /* + grand = défilement plus lent */
+  --fondu:      7%;        /* fondu du texte aux 2 bouts : 0% = coupe nette */
+  --creme:      #FFFBF3;   /* fond de la pill */
+  --creme-bord: #F2E8D6;   /* liseré intérieur */
+  --encre:      #FFFBF4;   /* texte : blanc doux */
+  --contour:    #14100C;   /* contour du texte : noir */
+  --accent:     #7A3FD1;   /* couleur des durées */
+  --epaisseur:  5px;       /* contour : ~la moitié est visible (2.5px ici) */
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: transparent;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Fredoka', 'Trebuchet MS', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.pill {
+  width: var(--largeur);
+  padding: 8px 0;                      /* hauteur = texte + ce padding */
+  background: var(--creme);
+  border: 4px solid var(--contour);
+  border-radius: 999px;
+  overflow: hidden;                    /* masque le texte hors de la pill */
+  box-shadow:
+    inset 0 0 0 3px var(--creme-bord),   /* liseré intérieur */
+    0 2px 5px rgba(0, 0, 0, .16);        /* ombre très légère — supprime cette ligne pour zéro ombre */
+}
+
+/* le fondu ne s'applique qu'au texte : le fond et le contour restent nets */
+.fenetre {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--fondu), #000 calc(100% - var(--fondu)), transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 var(--fondu), #000 calc(100% - var(--fondu)), transparent 100%);
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  /* couche GPU dédiée : le texte est rasterisé une fois, plus de scintillement */
+  will-change: transform;
+  backface-visibility: hidden;
+  animation: defile var(--vitesse) linear infinite;
+}
+
+@keyframes defile {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }   /* une série complète */
+}
+
+.serie {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-right: 14px;
+  white-space: nowrap;
+}
+
+.item { display: inline-flex; gap: 8px; }
+
+.label, .value, .sep {
+  font-size: var(--taille);
+  line-height: 1.3;
+  font-weight: 600;
+  /* vrai contour vectoriel, lissé : dessiné SOUS la lettre grâce à paint-order */
+  -webkit-text-stroke: var(--epaisseur) var(--contour);
+  paint-order: stroke fill;
+}
+
+.label { color: var(--encre); }
+.value { color: var(--accent); font-weight: 700; letter-spacing: .5px; }
+.sep   { color: var(--accent); font-size: calc(var(--taille) * .55); opacity: .9; }
+
+@media (prefers-reduced-motion: reduce) {
+  .track { animation: none; }
+}
+</style>
